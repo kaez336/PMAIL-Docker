@@ -34,6 +34,18 @@ cp /etc/letsencrypt/live/$DOMAIN/fullchain.pem config/ssl/public.crt
 echo "==> Stopping nginx..."
 nginx -s stop || true
 
+# === INIT SQLITE DB if not exist ===
+DB_PATH="/opt/pmail/config/pmail.db"
+INIT_SQL="/opt/pmail/init_pmail.sql"
+
+if [ ! -f "$DB_PATH" ]; then
+    echo "==> Creating initial SQLite database (admin user)..."
+    sqlite3 "$DB_PATH" < "$INIT_SQL"
+    echo "==> Database created at $DB_PATH"
+else
+    echo "==> SQLite database exists, skipping initialization."
+fi
+
 echo "==> Creating config.json..."
 
 cat <<EOF > config/config.json
