@@ -51,7 +51,7 @@ cat <<EOF > config/config.json
   "httpPort": 80,
   "httpsPort": 443,
   "spamFilterLevel": 0,
-  "isInit": false
+  "isInit": true
 }
 EOF
 
