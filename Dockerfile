@@ -32,6 +32,9 @@ RUN wget https://github.com/kelvinzer0/PMail-IPv6/releases/download/v2.9.9/linux
     && chmod +x /opt/pmail/pmail_linux_amd64 \
     && rm -rf linux_amd64.zip /tmp/pmail
 
+# -- copy initdb --
+COPY init_pmail.sql /opt/pmail/init_pmail.sql
+
 # -- copy entrypoint --
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
