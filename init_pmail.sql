@@ -87,7 +87,8 @@ CREATE TABLE IF NOT EXISTS "version" (
 -- CREATE INDEXES
 -- ============================================
 
-CREATE INDEX IF NOT EXISTS "idx_expiry" ON "sessions" ("expiry");
+-- FIXED: Changed index name to match what PMail expects
+CREATE INDEX IF NOT EXISTS "IDX_sessions_idx_expiry" ON "sessions" ("expiry");
 CREATE INDEX IF NOT EXISTS "idx_eid" ON "user_email" ("user_id", "email_id");
 CREATE INDEX IF NOT EXISTS "idx_email_id" ON "user_email" ("email_id");
 CREATE INDEX IF NOT EXISTS "idx_user_id" ON "user_email" ("user_id");
@@ -145,16 +146,3 @@ VALUES
 
 -- Insert version info
 INSERT OR IGNORE INTO "version" ("info") VALUES ('1.0.0');
-
--- ============================================
--- VERIFY DATA (Optional - untuk testing)
--- ============================================
-
--- SELECT '=== Users ===' as info;
--- SELECT id, account, name, disabled, is_admin FROM "user";
-
--- SELECT '=== Groups ===' as info;
--- SELECT id, name, user_id, full_path FROM "group" ORDER BY user_id, id;
-
--- SELECT '=== Version ===' as info;
--- SELECT * FROM "version";
