@@ -2,8 +2,16 @@ FROM debian:12
 
 # -- install dependencies --
 RUN apt update && apt install -y \
-    wget unzip curl nginx certbot \
-    openssl supervisor \
+    wget \
+    unzip \
+    zip \
+    libzip-dev \
+    curl \
+    nginx \
+    certbot \
+    openssl \
+    supervisor \
+    && apt clean \
     && rm -rf /var/lib/apt/lists/*
 
 # -- prepare directories --
