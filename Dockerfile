@@ -8,18 +8,33 @@ RUN apt update && apt install -y \
     libzip-dev \
     curl \
     nginx \
-    certbot \
     openssl \
     supervisor \
     sqlite3 \
+    python3 \
+    python3-pip \
+    python3-venv \
+    dnsutils \
+    netcat-traditional \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
+
+# -- install certbot via pip (fixes AttributeError bug) --
+RUN python3 -m venv /opt/certbot && \
+    /opt/certbot/bin/pip install --upgrade pip && \
+    /opt/certbot/bin/pip install certbot certbot-nginx && \
+    ln -s /opt/certbot/bin/certbot /usr/bin/certbot
 
 # -- prepare directories --
 RUN mkdir -p /opt/pmail/config/dkim \
     /opt/pmail/config/ssl \
     /opt/pmail/config \
-    /var/www/html
+    /var/www/html/.well-known/acme-challenge \
+    /etc/nginx/sites-available \
+    /etc/nginx/sites-enabled
+
+# -- remove default nginx config --
+RUN rm -f /etc/nginx/sites-enabled/default
 
 WORKDIR /opt/pmail
 
@@ -40,7 +55,7 @@ COPY init_pmail.sql /opt/pmail/init_pmail.sql
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# expose SMTP + HTTP + HTTPS
-EXPOSE 25 80 443
+# expose SMTP + HTTP + HTTPS + other mail ports
+EXPOSE 25 80 443 465 587 993 995
 
 ENTRYPOINT ["/entrypoint.sh"]
