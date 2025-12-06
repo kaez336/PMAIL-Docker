@@ -40,7 +40,7 @@ RUN rm -f /etc/nginx/sites-enabled/default
 WORKDIR /opt/pmail
 
 # -- download PMail IPv6 --
-RUN wget https://github.com/Jinnrry/PMail/releases/download/v2.8.9/linux_amd64.zip \
+RUN wget https://github.com/kelvinzer0/PMail-IPv6/releases/download/v2.9.9/linux_amd64.zip \
     && mkdir -p /tmp/pmail \
     && unzip linux_amd64.zip -d /tmp/pmail \
     && mkdir -p /opt/pmail \
