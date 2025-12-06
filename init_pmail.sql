@@ -84,15 +84,17 @@ CREATE TABLE IF NOT EXISTS "version" (
 );
 
 -- ============================================
--- CREATE INDEXES
+-- CREATE INDEXES (UPDATED to match PMail's naming convention)
 -- ============================================
 
--- FIXED: Changed index name to match what PMail expects
+-- Sessions table index
 CREATE INDEX IF NOT EXISTS "IDX_sessions_idx_expiry" ON "sessions" ("expiry");
-CREATE INDEX IF NOT EXISTS "idx_eid" ON "user_email" ("user_id", "email_id");
-CREATE INDEX IF NOT EXISTS "idx_email_id" ON "user_email" ("email_id");
-CREATE INDEX IF NOT EXISTS "idx_user_id" ON "user_email" ("user_id");
-CREATE INDEX IF NOT EXISTS "idx_create_time" ON "user_email" ("create");
+
+-- UserEmail table indices (updated names)
+CREATE INDEX IF NOT EXISTS "IDX_user_email_idx_eid" ON "user_email" ("user_id", "email_id");
+CREATE INDEX IF NOT EXISTS "IDX_user_email_idx_email_id" ON "user_email" ("email_id");
+CREATE INDEX IF NOT EXISTS "IDX_user_email_idx_user_id" ON "user_email" ("user_id");
+CREATE INDEX IF NOT EXISTS "IDX_user_email_idx_create" ON "user_email" ("create");
 
 -- ============================================
 -- INITIAL DATA
