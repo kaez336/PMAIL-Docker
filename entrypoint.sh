@@ -157,7 +157,7 @@ cat <<EOF > config/config.json
   "httpPort": 80,
   "httpsPort": 443,
   "spamFilterLevel": 0,
-  "binding_host": "::",
+  "binding_host": ":",
   "isInit": true
 }
 EOF
