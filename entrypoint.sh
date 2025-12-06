@@ -67,10 +67,13 @@ nginx
 sleep 3
 
 # Check if Nginx is running
-if ! pgrep -x "nginx" > /dev/null; then
-    echo "ERROR: Nginx failed to start"
-    cat /var/log/nginx/error.log
-    exit 1
+if ! pgrep -x "nginx" > /dev/null 2>&1; then
+    # Fallback to ps if pgrep not available
+    if ! ps aux | grep -v grep | grep -q nginx; then
+        echo "ERROR: Nginx failed to start"
+        cat /var/log/nginx/error.log
+        exit 1
+    fi
 fi
 echo "✓ Nginx is running"
 
