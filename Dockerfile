@@ -11,6 +11,7 @@ RUN apt update && apt install -y \
     certbot \
     openssl \
     supervisor \
+    sqlite3 \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 
