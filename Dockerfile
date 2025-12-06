@@ -24,11 +24,13 @@ WORKDIR /opt/pmail
 
 # -- download PMail IPv6 --
 RUN wget https://github.com/kelvinzer0/PMail-IPv6/releases/download/v2.9.9/linux_amd64.zip \
-    && unzip linux_amd64.zip \
+    && mkdir -p /tmp/pmail \
+    && unzip linux_amd64.zip -d /tmp/pmail \
     && mkdir -p /opt/pmail \
-    && mv pmail_linux_amd64 plugins/ /opt/pmail/ \
+    && mv /tmp/pmail/pmail_linux_amd64 /opt/pmail/ \
+    && mv /tmp/pmail/plugins /opt/pmail/ \
     && chmod +x /opt/pmail/pmail_linux_amd64 \
-    && rm -rf linux_amd64.zip
+    && rm -rf linux_amd64.zip /tmp/pmail
 
 # -- copy entrypoint --
 COPY entrypoint.sh /entrypoint.sh
