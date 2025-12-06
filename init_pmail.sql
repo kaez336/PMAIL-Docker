@@ -16,4 +16,3 @@ CREATE INDEX `IDX_user_email_user_id` ON `user_email` (`user_id`);
 CREATE INDEX `IDX_user_email_email_id` ON `user_email` (`email_id`);
 CREATE INDEX `IDX_user_email_'idx_create_time'` ON `user_email` (`create`);
 COMMIT;
-/work/config # 
