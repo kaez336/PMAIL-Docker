@@ -25,8 +25,18 @@ mkdir -p config/ssl
 echo "==> Starting temporary nginx for Certbot..."
 nginx
 
+echo "==> Checking Certbot version..."
+certbot --version || echo "Certbot version check failed"
+
 echo "==> Requesting SSL certificate..."
-# Fix: Add --preferred-challenges and increase timeout
+
+# Method 1: Try with pip-installed certbot (fixes AttributeError bug)
+if command -v python3 &> /dev/null; then
+    echo "==> Installing/Upgrading certbot via pip..."
+    pip3 install --upgrade certbot >/dev/null 2>&1 || true
+fi
+
+# Method 2: Use certbot with minimal options to avoid the bug
 certbot certonly \
     --webroot \
     -w /var/www/html \
@@ -35,18 +45,15 @@ certbot certonly \
     --email "admin@$DOMAIN" \
     --agree-tos \
     --non-interactive \
-    --preferred-challenges http \
-    --staple-ocsp \
-    --key-type rsa \
-    --rsa-key-size 2048 \
-    --max-log-backups 0 \
-    --quiet \
-    || {
-        echo "==> Certbot failed. Trying alternative method..."
+    --keep-until-expiring \
+    2>&1 | tee /tmp/certbot.log || {
         
-        # Alternative: Try with standalone mode
+        echo "==> Certbot webroot failed. Checking logs..."
+        cat /var/log/letsencrypt/letsencrypt.log | tail -20
+        
+        echo "==> Trying standalone mode..."
         nginx -s stop || true
-        sleep 2
+        sleep 3
         
         certbot certonly \
             --standalone \
@@ -55,15 +62,45 @@ certbot certonly \
             --email "admin@$DOMAIN" \
             --agree-tos \
             --non-interactive \
-            --preferred-challenges http \
-            --http-01-port 80 \
-            || {
-                echo "ERROR: Certificate generation failed completely"
-                echo "Please check:"
-                echo "1. DNS records point to this server"
-                echo "2. Port 80 is accessible from internet"
-                echo "3. Domain names are correct"
-                exit 1
+            --keep-until-expiring \
+            2>&1 | tee /tmp/certbot_standalone.log || {
+                
+                echo ""
+                echo "========================================="
+                echo "ERROR: Certificate generation failed"
+                echo "========================================="
+                echo ""
+                echo "Logs from Certbot:"
+                cat /var/log/letsencrypt/letsencrypt.log | tail -30
+                echo ""
+                echo "Common issues:"
+                echo "1. DNS not pointing to this server:"
+                echo "   Run: dig +short $DOMAIN"
+                echo "   Run: dig +short $WEB_DOMAIN"
+                echo ""
+                echo "2. Port 80 blocked:"
+                echo "   Run: nc -zv $(hostname -I | awk '{print $1}') 80"
+                echo ""
+                echo "3. Certbot bug (AttributeError):"
+                echo "   Try: pip3 install --upgrade --force-reinstall certbot"
+                echo ""
+                echo "4. Rate limit exceeded:"
+                echo "   Check: https://crt.sh/?q=$DOMAIN"
+                echo "   Wait 1 hour if you see many recent attempts"
+                echo ""
+                echo "========================================="
+                
+                # Create self-signed certificate as fallback
+                echo "==> Generating self-signed certificate as fallback..."
+                openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+                    -keyout config/ssl/private.key \
+                    -out config/ssl/public.crt \
+                    -subj "/C=US/ST=State/L=City/O=Organization/CN=$DOMAIN" \
+                    2>/dev/null
+                
+                echo "==> Self-signed certificate created. PMail will start but SSL won't be trusted."
+                echo "==> Fix DNS/firewall and restart container to get real certificate."
+                return 0
             }
     }
 
