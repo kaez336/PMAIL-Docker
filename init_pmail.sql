@@ -1,150 +1,19 @@
--- ============================================
--- CREATE TABLES
--- ============================================
-
--- Tabel User
-CREATE TABLE IF NOT EXISTS "user" (
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    "account" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
-    "disabled" INTEGER UNSIGNED NOT NULL DEFAULT 0,
-    "is_admin" INTEGER UNSIGNED NOT NULL DEFAULT 0
-);
-
--- Tabel Email
-CREATE TABLE IF NOT EXISTS "email" (
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    "type" TINYINT NOT NULL DEFAULT 0,
-    "subject" TEXT  NOT NULL DEFAULT '',
-    "reply_to" TEXT,
-    "from_name" TEXT  NOT NULL DEFAULT '',
-    "from_address" TEXT  NOT NULL DEFAULT '',
-    "to" TEXT,
-    "bcc" TEXT,
-    "cc" TEXT,
-    "text" TEXT,
-    "html" MEDIUMTEXT,
-    "sender" TEXT,
-    "attachments" LONGTEXT,
-    "spf_check" TINYINT,
-    "dkim_check" TINYINT,
-    "status" TINYINT NOT NULL DEFAULT 0,
-    "cron_send_time" TIMESTAMP,
-    "update_time" TIMESTAMP,
-    "send_user_id" INTEGER UNSIGNED NOT NULL DEFAULT 0,
-    "size" INTEGER UNSIGNED NOT NULL DEFAULT 1000,
-    "error" TEXT,
-    "send_date" TIMESTAMP,
-    "create_time" TIMESTAMP
-);
-
--- Tabel Group
-CREATE TABLE IF NOT EXISTS "group" (
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    "name" TEXT  NOT NULL DEFAULT '',
-    "parent_id" INTEGER UNSIGNED NOT NULL DEFAULT 0,
-    "user_id" INTEGER UNSIGNED NOT NULL DEFAULT 0,
-    "full_path" TEXT
-);
-
--- Tabel Rule
-CREATE TABLE IF NOT EXISTS "rule" (
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    "user_id" INTEGER NOT NULL DEFAULT 0,
-    "name" TEXT  NOT NULL DEFAULT '',
-    "value" TEXT,
-    "action" INTEGER NOT NULL DEFAULT 0,
-    "params" TEXT  NOT NULL DEFAULT '',
-    "sort" INTEGER NOT NULL DEFAULT 0
-);
-
--- Tabel Sessions
-CREATE TABLE IF NOT EXISTS "sessions" (
-    "token" TEXT PRIMARY KEY NOT NULL,
-    "data" BLOB,
-    "expiry" TIMESTAMP
-);
-
--- Tabel UserEmail
-CREATE TABLE IF NOT EXISTS "user_email" (
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    "email_id" INTEGER NOT NULL,
-    "is_read" TINYINT,
-    "group_id" INTEGER NOT NULL DEFAULT 0,
-    "status" TINYINT NOT NULL DEFAULT 0,
-    "create" DATETIME NOT NULL
-);
-
--- Tabel Version
-CREATE TABLE IF NOT EXISTS "version" (
-    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    "info" TEXT
-);
-
--- ============================================
--- CREATE INDEXES (UPDATED to match PMail's naming convention)
--- ============================================
-
--- Sessions table index
-CREATE INDEX IF NOT EXISTS "IDX_sessions_idx_expiry" ON "sessions" ("expiry");
-
--- UserEmail table indices (updated names)
-CREATE INDEX IF NOT EXISTS "IDX_user_email_idx_eid" ON "user_email" ("user_id", "email_id");
-CREATE INDEX IF NOT EXISTS "IDX_user_email_idx_email_id" ON "user_email" ("email_id");
-CREATE INDEX IF NOT EXISTS "IDX_user_email_idx_user_id" ON "user_email" ("user_id");
-CREATE INDEX IF NOT EXISTS "IDX_user_email_idx_create" ON "user_email" ("create");
-
--- ============================================
--- INITIAL DATA
--- ============================================
-
--- Hapus data lama jika ada (opsional, uncomment jika diperlukan)
--- DELETE FROM "user";
--- DELETE FROM "group";
--- DELETE FROM "version";
-
--- Reset auto-increment (uncomment jika diperlukan)
--- DELETE FROM "sqlite_sequence" WHERE "name" IN ('user', 'group', 'version');
-
--- Insert user admin (password: admin dengan MD5)
-INSERT OR IGNORE INTO "user" ("account", "name", "password", "disabled", "is_admin") 
-VALUES (
-    'admin', 
-    'Administrator', 
-    'faddb6ec2efe16116a342f5512583c48',
-    0, 
-    1
-);
-
--- Insert user regular (password: admin dengan MD5)
-INSERT OR IGNORE INTO "user" ("account", "name", "password", "disabled", "is_admin") 
-VALUES (
-    'user', 
-    'Regular User', 
-    'faddb6ec2efe16116a342f5512583c48',
-    0, 
-    0
-);
-
--- Insert grup-grup default untuk user admin (ID = 1)
-INSERT OR IGNORE INTO "group" ("id", "name", "parent_id", "user_id", "full_path") 
-VALUES 
-    (2000000000, 'INBOX', 0, 1, 'INBOX'),
-    (2000000001, 'Sent Messages', 0, 1, 'Sent Messages'),
-    (2000000002, 'Drafts', 0, 1, 'Drafts'),
-    (2000000003, 'Deleted Messages', 0, 1, 'Deleted Messages'),
-    (2000000004, 'Junk', 0, 1, 'Junk');
-
--- Insert grup-grup default untuk user regular (ID = 2)
-INSERT OR IGNORE INTO "group" ("id", "name", "parent_id", "user_id", "full_path") 
-VALUES 
-    (2000000005, 'INBOX', 0, 2, 'INBOX'),
-    (2000000006, 'Sent Messages', 0, 2, 'Sent Messages'),
-    (2000000007, 'Drafts', 0, 2, 'Drafts'),
-    (2000000008, 'Deleted Messages', 0, 2, 'Deleted Messages'),
-    (2000000009, 'Junk', 0, 2, 'Junk');
-
--- Insert version info
-INSERT OR IGNORE INTO "version" ("info") VALUES ('1.0.0');
+PRAGMA foreign_keys=OFF;
+BEGIN TRANSACTION;
+CREATE TABLE `user` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `account` TEXT NOT NULL, `name` TEXT NOT NULL, `password` TEXT NOT NULL, `disabled` INTEGER DEFAULT 0 NOT NULL, `is_admin` INTEGER DEFAULT 0 NOT NULL);
+INSERT INTO user VALUES(1,'admin','admin','faddb6ec2efe16116a342f5512583c48',0,1);
+CREATE TABLE `email` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `type` INTEGER DEFAULT 0 NOT NULL, `subject` TEXT DEFAULT '' NOT NULL, `reply_to` TEXT NULL, `from_name` TEXT DEFAULT '' NOT NULL, `from_address` TEXT DEFAULT '' NOT NULL, `to` TEXT NULL, `bcc` TEXT NULL, `cc` TEXT NULL, `text` TEXT NULL, `html` TEXT NULL, `sender` TEXT NULL, `attachments` TEXT NULL, `spf_check` INTEGER NULL, `dkim_check` INTEGER NULL, `status` INTEGER DEFAULT 0 NOT NULL, `cron_send_time` DATETIME NULL, `update_time` DATETIME NULL, `send_user_id` INTEGER DEFAULT 0 NOT NULL, `size` INTEGER DEFAULT 1000 NOT NULL, `error` TEXT NULL, `send_date` DATETIME NULL, `create_time` DATETIME NULL);
+CREATE TABLE `group` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT DEFAULT '' NOT NULL, `parent_id` INTEGER DEFAULT 0 NOT NULL, `user_id` INTEGER DEFAULT 0 NOT NULL, `full_path` TEXT NULL);
+CREATE TABLE `rule` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `user_id` INTEGER DEFAULT 0 NOT NULL, `name` TEXT DEFAULT '' NOT NULL, `value` TEXT NULL, `action` INTEGER DEFAULT 0 NOT NULL, `params` TEXT DEFAULT '' NOT NULL, `sort` INTEGER DEFAULT 0 NOT NULL);
+CREATE TABLE `sessions` (`token` TEXT PRIMARY KEY NOT NULL, `data` BLOB NULL, `expiry` DATETIME NULL);
+CREATE TABLE `user_email` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `user_id` INTEGER NOT NULL, `email_id` INTEGER NOT NULL, `is_read` INTEGER NULL, `group_id` INTEGER DEFAULT 0 NOT NULL, `status` INTEGER DEFAULT 0 NOT NULL, `create` DATETIME NULL);
+CREATE TABLE `version` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `info` TEXT NOT NULL);
+INSERT INTO sqlite_sequence VALUES('user',1);
+CREATE UNIQUE INDEX `UQE_user_account` ON `user` (`account`);
+CREATE INDEX `IDX_sessions_expiry` ON `sessions` (`expiry`);
+CREATE INDEX `IDX_user_email_'idx_eid'` ON `user_email` (`user_id`,`email_id`);
+CREATE INDEX `IDX_user_email_user_id` ON `user_email` (`user_id`);
+CREATE INDEX `IDX_user_email_email_id` ON `user_email` (`email_id`);
+CREATE INDEX `IDX_user_email_'idx_create_time'` ON `user_email` (`create`);
+COMMIT;
+/work/config # 
