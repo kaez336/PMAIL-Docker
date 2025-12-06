@@ -16,6 +16,7 @@ RUN apt update && apt install -y \
     python3-venv \
     dnsutils \
     netcat-traditional \
+    procps \
     && apt clean \
     && rm -rf /var/lib/apt/lists/*
 
