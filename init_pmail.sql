@@ -5,9 +5,9 @@
 -- Tabel User
 CREATE TABLE IF NOT EXISTS "user" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    "account" VARCHAR(20) NOT NULL UNIQUE,
-    "name" VARCHAR(10) NOT NULL,
-    "password" CHAR(32) NOT NULL,
+    "account" TEXT,
+    "name" TEXT,
+    "password" TEXT,
     "disabled" INTEGER UNSIGNED NOT NULL DEFAULT 0,
     "is_admin" INTEGER UNSIGNED NOT NULL DEFAULT 0
 );
@@ -16,10 +16,10 @@ CREATE TABLE IF NOT EXISTS "user" (
 CREATE TABLE IF NOT EXISTS "email" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     "type" TINYINT NOT NULL DEFAULT 0,
-    "subject" VARCHAR(1000) NOT NULL DEFAULT '',
+    "subject" TEXT,
     "reply_to" TEXT,
-    "from_name" VARCHAR(50) NOT NULL DEFAULT '',
-    "from_address" VARCHAR(100) NOT NULL DEFAULT '',
+    "from_name" TEXT,
+    "from_address" TEXT,
     "to" TEXT,
     "bcc" TEXT,
     "cc" TEXT,
@@ -36,32 +36,32 @@ CREATE TABLE IF NOT EXISTS "email" (
     "size" INTEGER UNSIGNED NOT NULL DEFAULT 1000,
     "error" TEXT,
     "send_date" TIMESTAMP,
-    "create_time" TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    "create_time" TIMESTAMP
 );
 
 -- Tabel Group
 CREATE TABLE IF NOT EXISTS "group" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    "name" VARCHAR(10) NOT NULL DEFAULT '',
+    "name" TEXT,
     "parent_id" INTEGER UNSIGNED NOT NULL DEFAULT 0,
     "user_id" INTEGER UNSIGNED NOT NULL DEFAULT 0,
-    "full_path" VARCHAR(600)
+    "full_path" TEXT
 );
 
 -- Tabel Rule
 CREATE TABLE IF NOT EXISTS "rule" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     "user_id" INTEGER NOT NULL DEFAULT 0,
-    "name" VARCHAR(255) NOT NULL DEFAULT '',
+    "name" TEXT,
     "value" TEXT,
     "action" INTEGER NOT NULL DEFAULT 0,
-    "params" VARCHAR(255) NOT NULL DEFAULT '',
+    "params" TEXT,
     "sort" INTEGER NOT NULL DEFAULT 0
 );
 
 -- Tabel Sessions
 CREATE TABLE IF NOT EXISTS "sessions" (
-    "token" CHAR(43) PRIMARY KEY NOT NULL,
+    "token" TEXT PRIMARY KEY,
     "data" BLOB,
     "expiry" TIMESTAMP
 );
@@ -74,13 +74,13 @@ CREATE TABLE IF NOT EXISTS "user_email" (
     "is_read" TINYINT,
     "group_id" INTEGER NOT NULL DEFAULT 0,
     "status" TINYINT NOT NULL DEFAULT 0,
-    "create" DATETIME DEFAULT CURRENT_TIMESTAMP
+    "create" DATETIME
 );
 
 -- Tabel Version
 CREATE TABLE IF NOT EXISTS "version" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    "info" VARCHAR(255) NOT NULL
+    "info" TEXT
 );
 
 -- ============================================
