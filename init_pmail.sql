@@ -5,9 +5,9 @@
 -- Tabel User
 CREATE TABLE IF NOT EXISTS "user" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    "account" TEXT,
-    "name" TEXT,
-    "password" TEXT,
+    "account" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
     "disabled" INTEGER UNSIGNED NOT NULL DEFAULT 0,
     "is_admin" INTEGER UNSIGNED NOT NULL DEFAULT 0
 );
@@ -16,10 +16,10 @@ CREATE TABLE IF NOT EXISTS "user" (
 CREATE TABLE IF NOT EXISTS "email" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     "type" TINYINT NOT NULL DEFAULT 0,
-    "subject" TEXT,
+    "subject" TEXT  NOT NULL DEFAULT '',
     "reply_to" TEXT,
-    "from_name" TEXT,
-    "from_address" TEXT,
+    "from_name" TEXT  NOT NULL DEFAULT '',
+    "from_address" TEXT  NOT NULL DEFAULT '',
     "to" TEXT,
     "bcc" TEXT,
     "cc" TEXT,
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS "email" (
 -- Tabel Group
 CREATE TABLE IF NOT EXISTS "group" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    "name" TEXT,
+    "name" TEXT  NOT NULL DEFAULT '',
     "parent_id" INTEGER UNSIGNED NOT NULL DEFAULT 0,
     "user_id" INTEGER UNSIGNED NOT NULL DEFAULT 0,
     "full_path" TEXT
@@ -52,16 +52,16 @@ CREATE TABLE IF NOT EXISTS "group" (
 CREATE TABLE IF NOT EXISTS "rule" (
     "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     "user_id" INTEGER NOT NULL DEFAULT 0,
-    "name" TEXT,
+    "name" TEXT  NOT NULL DEFAULT '',
     "value" TEXT,
     "action" INTEGER NOT NULL DEFAULT 0,
-    "params" TEXT,
+    "params" TEXT  NOT NULL DEFAULT '',
     "sort" INTEGER NOT NULL DEFAULT 0
 );
 
 -- Tabel Sessions
 CREATE TABLE IF NOT EXISTS "sessions" (
-    "token" TEXT PRIMARY KEY,
+    "token" TEXT PRIMARY KEY NOT NULL,
     "data" BLOB,
     "expiry" TIMESTAMP
 );
@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS "user_email" (
     "is_read" TINYINT,
     "group_id" INTEGER NOT NULL DEFAULT 0,
     "status" TINYINT NOT NULL DEFAULT 0,
-    "create" DATETIME
+    "create" DATETIME NOT NULL
 );
 
 -- Tabel Version
