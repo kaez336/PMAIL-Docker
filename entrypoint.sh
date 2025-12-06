@@ -154,7 +154,7 @@ INIT_SQL="/opt/pmail/init_pmail.sql"
 
 if [ ! -f "$DB_PATH" ]; then
     echo "==> Creating SQLite database..."
-  #  sqlite3 "$DB_PATH" < "$INIT_SQL"
+    sqlite3 "$DB_PATH" < "$INIT_SQL"
     echo "✓ Database created"
 else
     echo "✓ Database already exists"
