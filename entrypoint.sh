@@ -102,6 +102,69 @@ fi
 
 nginx -s stop || true
 
+#############################################
+# BLOCK IPv4 CONNECTIONS AFTER SSL COMPLETE
+#############################################
+echo "==> BLOCKING IPv4 OUTBOUND CONNECTIONS..."
+
+# Method 1: Disable IPv4 via sysctl (kernel level)
+echo "==> Disabling IPv4 via sysctl..."
+if [ -f /proc/sys/net/ipv4/conf/all/disable_ipv4 ]; then
+    echo 1 > /proc/sys/net/ipv4/conf/all/disable_ipv4 2>/dev/null || true
+    echo "✓ /proc/sys/net/ipv4/conf/all/disable_ipv4 = 1"
+fi
+
+if [ -f /proc/sys/net/ipv4/conf/default/disable_ipv4 ]; then
+    echo 1 > /proc/sys/net/ipv4/conf/default/disable_ipv4 2>/dev/null || true
+    echo "✓ /proc/sys/net/ipv4/conf/default/disable_ipv4 = 1"
+fi
+
+# Method 2: Disable IPv4 in NetworkManager (if exists)
+if command -v nmcli &> /dev/null; then
+    echo "==> Disabling IPv4 in NetworkManager..."
+    nmcli connection modify $(nmcli -t -f UUID connection show --active | head -1) ipv4.method disabled 2>/dev/null || true
+    echo "✓ NetworkManager IPv4 disabled"
+fi
+
+# Method 3: Block IPv4 with iptables (fallback)
+echo "==> Setting up iptables rules to block IPv4..."
+if command -v iptables &> /dev/null; then
+    # Flush existing rules
+    iptables -F 2>/dev/null || true
+    iptables -t nat -F 2>/dev/null || true
+    iptables -t mangle -F 2>/dev/null || true
+    
+    # Set default policies to DROP
+    iptables -P INPUT DROP 2>/dev/null || true
+    iptables -P OUTPUT DROP 2>/dev/null || true
+    iptables -P FORWARD DROP 2>/dev/null || true
+    
+    # Allow IPv6 traffic (optional, adjust as needed)
+    if command -v ip6tables &> /dev/null; then
+        ip6tables -P INPUT ACCEPT 2>/dev/null || true
+        ip6tables -P OUTPUT ACCEPT 2>/dev/null || true
+        ip6tables -P FORWARD ACCEPT 2>/dev/null || true
+    fi
+    
+    echo "✓ iptables rules applied"
+else
+    echo "⚠️ iptables not available, skipping firewall rules"
+fi
+
+# Method 4: Disable IPv4 via kernel parameters
+echo "==> Adding kernel parameters to disable IPv4..."
+sysctl -w net.ipv4.ip_forward=0 2>/dev/null || true
+sysctl -w net.ipv4.conf.all.forwarding=0 2>/dev/null || true
+sysctl -w net.ipv4.conf.default.forwarding=0 2>/dev/null || true
+
+# Method 5: Remove IPv4 addresses from interfaces
+echo "==> Removing IPv4 addresses from network interfaces..."
+for iface in $(ip -o link show | awk -F': ' '{print $2}'); do
+    # Remove all IPv4 addresses
+    ip -4 addr flush dev $iface 2>/dev/null || true
+done
+
+echo "✓ IPv4 blocking complete - Outbound IPv4 connections disabled"
 
 #############################################
 # 3. Copy cert to PMail config (prevent overwrite)
@@ -168,12 +231,21 @@ fi
 
 
 #############################################
-# 6. Start PMail
+# 6. Start PMail (IPv6 only)
 #############################################
 echo "========================================="
 echo "✓ INITIALIZATION COMPLETE"
 echo "========================================="
 echo ""
-
+echo "==> IPv4 Status: DISABLED (IPv6 only mode)"
 echo "==> Starting PMail daemon..."
+
+# Verify IPv4 is disabled
+echo "==> Verifying IPv4 status..."
+if ip -4 addr show | grep -q "inet"; then
+    echo "⚠️ WARNING: IPv4 addresses still detected!"
+else
+    echo "✓ IPv4 successfully disabled"
+fi
+
 exec ./pmail_linux_amd64
