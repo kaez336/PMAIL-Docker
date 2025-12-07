@@ -26,12 +26,20 @@ Command:
 
 Command:
 
-    docker run -d \
-      --name pmail \
-      -e DOMAIN=domain.com \
-      -e WEB_DOMAIN=mail.domain.com \
-      -p 25:25 -p 80:80 -p 443:443 \
-      pmail-auto
+  docker run -d \
+    --name pmail \
+    -e DOMAIN=domain.com \
+    -e WEB_DOMAIN=mail.domain.com \
+    -p 25:25 \
+    -p 587:587 \
+    -p 465:465 \
+    -p 80:80 \
+    -p 443:443 \
+    -p 110:110 \
+    -p 995:995 \
+    -p 993:993 \
+    pmail-auto
+
 
 
 Environment variables (ASCII Table):
